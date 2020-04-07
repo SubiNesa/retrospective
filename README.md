@@ -1,2 +1,3 @@
-# retrospective
-retrospective tool for remote work
+# Retrospective tool
+
+Retrospective tool for remote work
