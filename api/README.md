@@ -1,6 +1,6 @@
 # Retrospective server
 
-This is a small retrospective web applications tool using [webpack](https://webpack.js.org/), [handlebars](http://handlebarsjs.com/), [UIkit](https://getuikit.com/) and [scss](https://sass-lang.com/) along with [babel](https://babeljs.io/)
+This is a small retrospective server applications
 
 ## Dependencies
 
@@ -16,31 +16,16 @@ In the node command prompt navigate to a folder you want to clone the repo into.
 
 2. move into the repository folder
 
-    ```cd <repo name>/app```  
+    ```cd <repo name>/api```  
 
 3. install the dependencies 
 
     ```npm install```
 
-## Build
-
-This project contains two webpack.[].config.js webpack configurations.
-
 ### Developement
-> webpack.dev.config
 
 Build the developement version
 
-```npm run start```
+```npm run serve```
  
-Please folow [localhost:9000](localhost:9000)
-
-### Production
-> webpack.prod.config
-
-Build the production version
-
-```npm run build```
-
-Find bundle files in dist folder
-
+Please folow [localhost:3000](localhost:3000)

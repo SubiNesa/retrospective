@@ -2,14 +2,22 @@ let loginTpl = require('../../views/templates/login.hbs');
 
 class LoginComponents {
 
+	constructor (socket) {
+		this.socket = socket;
+	}
+
     async render() {
+		let that = this;
         try {
-			$('#results').html(loginTpl());
+			$('#retro').html(loginTpl());
 			
 			$("#form-user").on('submit', function(e) {  
 				e.preventDefault();  
-				let data = $("#form-user").serializeArray()
-				sessionStorage.setItem("user", data[0].value);
+				let data = $("#form-user").serializeArray();
+				console.log(data);
+
+				that.socket.open();
+				that.socket.emit('login', data[0].value);
 			}); 
 
         } catch (error) {

@@ -1,4 +1,4 @@
-# Retrospective tool
+# Retrospective front
 
 This is a small retrospective web applications tool using [webpack](https://webpack.js.org/), [handlebars](http://handlebarsjs.com/), [UIkit](https://getuikit.com/) and [scss](https://sass-lang.com/) along with [babel](https://babeljs.io/)
 

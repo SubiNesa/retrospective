@@ -9,7 +9,7 @@ let columnContinueTpl = require('../../views/templates/columns/continue.hbs');
 import RetroService from '../../services/retro.js';
 
 const retroService = new RetroService();
-const data = {};
+
 
 const starts = [];
 const stops = [];
@@ -17,24 +17,17 @@ const continues = [];
 
 class TableComponents {
 
-	constructor (UIkit) {
+	constructor (socket, UIkit) {
+		this.socket = socket;
 		this.UIkit = UIkit;
 	}
 
     async render() {
         try {
-            let sprints = [
-				{
-					title: 'Sprint 6',
-					details: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit'
-				},
-				{
-					title: 'Sprint 5',
-					details: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit'
-				}
-			];
+			let sprints = await retroService.list();
+			
 
-            $('#results').html(tableTpl({ sprints: sprints }));
+            $('#retro').html(tableTpl({ sprints: sprints }));
             $('.column-start').html(columnStartTpl({}));
             $('.column-stop').html(columnStopTpl({}));
 			$('.column-continue').html(columnContinueTpl({}));

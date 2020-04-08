@@ -2,7 +2,7 @@ class RetroService {
     list() {
         try {
             return $.ajax({
-                url: ``,
+                url: `http://localhost:3000/sprints`,
                 type: "GET"
             });
 
