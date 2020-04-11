@@ -8,6 +8,7 @@ const mongoose = require('mongoose');
 const port = 3000;
 const colors = ['#E53935', '#D81B60', '#8E24AA', '#B388FF', '#3949AB', '#1E88E5', '#81D4FA', '#00ACC1', '#00897B', '#00BFA5', '#A5D6A7', '#43A047', '#7CB342', '#F57F17', '#FBC02D'];
 let users = [];
+const globalUsers = require('./Users');
 
 app.use(cors());
 app.use(bodyParser.json({limit: '50mb'})); // get information from html forms
@@ -17,7 +18,6 @@ app.get('/', (req, res) => res.send('Hello World!'));
 
 io.on('connection', socket => {
 	
-	
 	console.log('connection', socket.id);
 
 	const connectUser = (email) => {
@@ -26,6 +26,8 @@ io.on('connection', socket => {
 			email: email,
 			color: colors[Math.floor((Math.random() * colors.length) + 1)]
 		};
+
+		globalUsers.setUser(email, socket);
 		
 		users.push(user);
 		io.to(`${socket.id}`).emit('connected', user, users);
@@ -35,6 +37,9 @@ io.on('connection', socket => {
 	const reconnectUser = (user) => {
 		user.id = socket.id;
 		users.push(user);
+
+		globalUsers.setUser(user.email, socket);
+
 		io.to(`${socket.id}`).emit('connected', user, users);
 		socket.broadcast.emit('new user connected', users);
 	}	
@@ -68,6 +73,7 @@ io.on('connection', socket => {
 	socket.on('disconnect', () => {
 		console.log('disconnect', socket.id);
 		let index = users.findIndex((user) => user.id == socket.id);
+		globalUsers.delUser('id', socket.id);
 		if (index >= 0) {
 			users.splice(index, 1);
 			socket.broadcast.emit('user disconnect', users);

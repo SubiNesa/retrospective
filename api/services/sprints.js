@@ -58,7 +58,7 @@ function updateLike(sprintId, cardId, email, group) {
 			if (sprint[group][index].likes.includes(email)) {
 				let indexLike = sprint[group][index].likes.findIndex(item => item == email);
 				sprint[group][index].likes.splice(indexLike, 1);
-				
+
 			} else {
 				sprint[group][index].likes.push(email);
 			}
@@ -69,7 +69,7 @@ function updateLike(sprintId, cardId, email, group) {
 				}
 				return resolve({
 					_id: newSprint._id,
-					msg: 'like_updated',
+					msg: 'likes_updated',
 					card: cardId,
 					likes: sprint[group][index].likes.length
 				});

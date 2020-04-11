@@ -14,10 +14,10 @@ const continues = [];
 
 const updateLikes = (ukCard, data) => {
 	ukCard.find('.retro-likes').html(data.likes);
-	ukCard.find('.me-like').addClass('uk-animation-shake');
+	ukCard.find('.me-like').addClass('uk-animation-shake uk-text-danger');
 	setTimeout(function () {
-		ukCard.find('.me-like').removeClass('uk-animation-shake');
-	}, 1000);
+		ukCard.find('.me-like').removeClass('uk-animation-shake uk-text-danger');
+	}, 700);
 }
 
 class TableComponents {
@@ -100,7 +100,8 @@ class TableComponents {
 					sprint_id,
 					card_id,
 					user.email,
-					card_group
+					card_group,
+					user.email
 				);
 
 				updateLikes(uk_card_dom, response);

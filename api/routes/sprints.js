@@ -3,7 +3,8 @@
 const express = require('express');
 const router = express.Router();
 const sprintsService = require('../services/sprints');
-let webSocket;
+const globalUsers = require('../Users');
+let socketIo;
 
 router.get('/', async function(req, res) {
 	let sprints = await sprintsService.list();
@@ -21,8 +22,8 @@ router.post('/', async function(req, res) {
 });
 
 router.put('/:sprintId/card/:cardId/like', async function(req, res) {
-	console.log(webSocket.id);
 	try {
+		let user = globalUsers.getOne('email', req.body.me);
 		let sprint = await sprintsService.updateLike(
 			req.params.sprintId,
 			req.params.cardId,
@@ -30,25 +31,23 @@ router.put('/:sprintId/card/:cardId/like', async function(req, res) {
 			req.body.group
 		);
 		
-		res.json(sprint);
-
-		webSocket.broadcast.emit('card liked', {
+		// sending to all clients except sender
+		user.socket.broadcast.emit('card liked', {
 			srpintId: req.params.sprintId,
 			cardId: req.params.cardId,
 			emailId: req.body.email,
 			likes: sprint.likes
 		});
+
+		return res.json(sprint);
 	} catch (error) {
-		res.json(error);
+		console.log(error);
+		return res.send(error);
 	}
 });
 
 module.exports = function(io) {
-
-	io.on('connection', socket => {
-		console.log(socket.id);
-		webSocket = socket;
-	});
+	socketIo = io;
 
 	return router;
 }
