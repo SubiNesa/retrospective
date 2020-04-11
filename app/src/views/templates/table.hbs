@@ -11,7 +11,7 @@
 				{{#if @first}}
 				<div class="uk-margin uk-inline" style="display: block;">
 					<a class="uk-form-icon" href="#" uk-icon="icon: pencil"></a>
-					<input class="uk-input new-start-input" type="text" placeholder="add start">
+					<input class="uk-input new-start-input" type="text" placeholder="add start" data-sprint={{_id}}>
 				</div>
 				{{/if}}
 				<div class="column-start{{#unless @first}}-previous{{/unless}}">
@@ -23,20 +23,24 @@
 				{{#if @first}}
 				<div class="uk-margin uk-inline" style="display: block;">
 					<a class="uk-form-icon" href="#" uk-icon="icon: pencil"></a>
-					<input class="uk-input new-stop-input" type="text" placeholder="add stop">
+					<input class="uk-input new-stop-input" type="text" placeholder="add stop" data-sprint={{_id}}>
 				</div>
 				{{/if}}
-				<div class="column-stop{{#unless @first}}-previous{{/unless}}"></div>
+				<div class="column-stop{{#unless @first}}-previous{{/unless}}">
+					{{> ../partials/columns/stop this}}
+				</div>
 			</div>
 			<div>
 				<h4>Continue</h4>
 				{{#if @first}}
 				<div class="uk-margin uk-inline" style="display: block;">
 					<a class="uk-form-icon" href="#" uk-icon="icon: pencil"></a>
-					<input class="uk-input new-continue-input" type="text" placeholder="add continue">
+					<input class="uk-input new-continue-input" type="text" placeholder="add continue" data-sprint={{_id}}>
 				</div>
 				{{/if}}
-				<div class="column-continue{{#unless @first}}-previous{{/unless}}"></div>
+				<div class="column-continue{{#unless @first}}-previous{{/unless}}">
+					{{> ../partials/columns/continue this}}
+				</div>
 			</div>
 		</div>
 	</div>

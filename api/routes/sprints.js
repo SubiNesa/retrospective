@@ -21,14 +21,44 @@ router.post('/', async function(req, res) {
 	res.json(sprint);
 });
 
-router.put('/:sprintId/card/:cardId/like', async function(req, res) {
+router.put('/:sprintId/group/:group', async function(req, res) {
+	try {
+		let user = globalUsers.getOne('email', req.body.me);
+		let sprint = await sprintsService.updateColumn(
+			req.params.sprintId,
+			req.params.group,
+			req.body.type,
+			req.body.text,
+		);
+		
+		// sending to all clients except sender
+		user.socket.broadcast.emit('card added', {
+			srpintId: req.params.sprintId,
+			group: req.params.group,
+			text: req.body.text,
+			cardId: sprint.cardId
+		});
+
+		return res.json({
+			srpintId: req.params.sprintId,
+			group: req.params.group,
+			text: req.body.text,
+			cardId: sprint.cardId
+		});
+	} catch (error) {
+		console.log(error);
+		return res.send(error);
+	}
+});
+
+router.put('/:sprintId/group/:group/card/:cardId/like', async function(req, res) {
 	try {
 		let user = globalUsers.getOne('email', req.body.me);
 		let sprint = await sprintsService.updateLike(
 			req.params.sprintId,
 			req.params.cardId,
-			req.body.email,
-			req.body.group
+			req.params.group,
+			req.body.email
 		);
 		
 		// sending to all clients except sender

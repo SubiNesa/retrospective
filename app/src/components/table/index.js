@@ -1,16 +1,45 @@
 import './table.scss';
 
 let tableTpl = require('../../views/templates/table.hbs');
+let cardTpl = require('../../views/partials/card.hbs');
 
 // Services
 import RetroService from '../../services/retro.js';
 
 const retroService = new RetroService();
 
+const enterNewInput = async (e, that, group) => {
+	if (e.which === 13) {
+		if (e.currentTarget.value) {
 
-const starts = [];
-const stops = [];
-const continues = [];
+			let user = JSON.parse(sessionStorage.getItem("user"));
+			let sprint_id = $(e.currentTarget).data('sprint');
+
+			let response = await retroService.addCard(
+				sprint_id,
+				group,
+				'add',
+				e.currentTarget.value,
+				user.email
+			);
+
+			updateCard(that, response);
+		}
+
+		$(e.currentTarget).val('');
+	}
+}
+
+const updateCard = (that, data) => {
+	$(`.column-${data.group} div[data-sprint='${data.srpintId}']`)
+	.append(cardTpl({text: data.text, id: data.cardId, last: true}));
+
+	that.UIkit.sticky('.sprint-title', {
+		offset: 0
+	});
+
+	that.onClick();
+}
 
 const updateLikes = (ukCard, data) => {
 	ukCard.find('.retro-likes').html(data.likes);
@@ -49,42 +78,35 @@ class TableComponents {
 		let that = this;
 
         $('.new-start-input').on('keypress', function (e) {
-			if(e.which === 13){
-				starts.push({
-					name: e.currentTarget.value
-				});
-				// $('.column-start').html(columnStartTpl({ starts }));
-				that.UIkit.sticky('.sprint-title', {
-					offset: 0
-				});
-			}
+			enterNewInput(e, that, 'start');
 		});
 		  
         $('.new-stop-input').on('keypress', function (e) {
-			if(e.which === 13){
-				stops.push({
-					name: e.currentTarget.value
-				});
-				// $('.column-stop').html(columnStopTpl({ stops }));
-				that.UIkit.sticky('.sprint-title', {
-					offset: 0
-				});
-			}
+			enterNewInput(e, that, 'stop');
 		});
 		
         $('.new-continue-input').on('keypress', function (e) {
-			if(e.which === 13){
-				continues.push({
-					name: e.currentTarget.value
-				});
-				// $('.column-continue').html(columnContinueTpl({ continues }));
-				that.UIkit.sticky('.sprint-title', {
-					offset: 0
-				});
-			}
+			enterNewInput(e, that, 'continue');
 		});
-		
-        $('.me-like').on('click', async function (e) {
+
+		this.onClick()
+	}
+	
+	onSockets() {
+		let that = this;
+
+		this.socket.on('card added', data => {
+			updateCard(that, data);
+		});
+
+		this.socket.on('card liked', data => {
+			let uk_card_dom = $(`.uk-sortable[data-sprint='${data.srpintId}']`).find(`.uk-card[data-id='${data.cardId}']`);
+			updateLikes(uk_card_dom, data);
+		});
+	}
+
+	onClick() {
+		$('.me-like').on('click', async function (e) {
 			e.preventDefault();
 
 			try {
@@ -99,8 +121,8 @@ class TableComponents {
 				let response = await retroService.like(
 					sprint_id,
 					card_id,
-					user.email,
 					card_group,
+					user.email,
 					user.email
 				);
 
@@ -110,13 +132,6 @@ class TableComponents {
 				console.error(error);
 			}
 	  	});
-	}
-	
-	onSockets() {
-		this.socket.on('card liked', (data) => {
-			let uk_card_dom = $(`.uk-sortable[data-sprint='${data.srpintId}']`).find(`.uk-card[data-id='${data.cardId}']`);
-			updateLikes(uk_card_dom, data);
-		});
 	}
 }
 

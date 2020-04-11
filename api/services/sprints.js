@@ -2,6 +2,7 @@
 'use strict';
 
 var Sprint = require('../models/Sprint');
+const { v4: uuidv4 } = require('uuid');
 
 /**
  *  List of sprints
@@ -42,9 +43,59 @@ function save() {
 
 /**
  * Update sprint
- * @param id
+ * @param sprintId
+ * @param type
+ * @param text
  */    
-function updateLike(sprintId, cardId, email, group) {
+function updateColumn(sprintId, group, type, text) {
+	return new Promise(function(resolve, reject) {
+
+		Sprint.findOne({ _id: sprintId }, function(err, sprint) {
+			if (err) {
+				return reject(err);
+			}
+
+			let card_id = uuidv4();
+
+			switch (type) {
+				case 'add': {
+					sprint[group].push({
+						id: card_id,
+						text: text,
+						likes: [],
+						comments: [],
+						states: [group]
+					});
+					break;
+				}
+					
+				default:
+					break;
+			}
+
+			Sprint.updateOne({ _id: sprintId }, sprint, function(err, newSprint) {
+				if (err) {
+					return reject(err);
+				}
+				return resolve({
+					_id: newSprint._id,
+					msg: `${group}_${type}_updated`,
+					text: text,
+					cardId: card_id
+				});
+			});
+		});
+	});
+}
+
+/**
+ * Update likes
+ * @param sprintId
+ * @param cardId
+ * @param email
+ * @param group
+ */    
+function updateLike(sprintId, cardId, group, email) {
     
 	return new Promise(function(resolve, reject) {
 
@@ -82,5 +133,6 @@ module.exports = {
 	list,
 	one,
 	save,
+	updateColumn,
 	updateLike
 };
