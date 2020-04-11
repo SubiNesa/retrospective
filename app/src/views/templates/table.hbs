@@ -14,7 +14,9 @@
 					<input class="uk-input new-start-input" type="text" placeholder="add start">
 				</div>
 				{{/if}}
-				<div class="column-start{{#unless @first}}-previous{{/unless}}"></div>
+				<div class="column-start{{#unless @first}}-previous{{/unless}}">
+					{{> ../partials/columns/start this}}
+				</div>
 			</div>
 			<div>
 				<h4>Stop</h4>

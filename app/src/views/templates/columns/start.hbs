@@ -1,9 +1,0 @@
-<div uk-sortable="group: sortable-group">
-	{{> ../partials/card name='Item start 1'}}
-	{{> ../partials/card name='Item start 2'}}
-	{{> ../partials/card name='Item start 3'}}
-	{{> ../partials/card name='Item start 4'}}
-	{{#each starts}}
-		{{> ../partials/card name=this.name last=@last}}
-	{{/each}}
-</div>

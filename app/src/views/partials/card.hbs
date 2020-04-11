@@ -1,7 +1,11 @@
 <div class="uk-margin">
 	<div>
-		<div class="uk-card uk-card-default uk-card-body {{#if last}}uk-animation-scale-up{{/if}}">
-			<p>{{name}}</p>
+		<div class="uk-card uk-card-default uk-card-body {{#if last}}uk-animation-scale-up{{/if}}" style="padding: 30px 20px;" data-id="{{id}}">
+			<div style="position: absolute; right: 10px; top: 10px;">
+				<span class="retro-comments">{{sizeHlp comments}}</span> <span uk-icon="icon: comment" class="uk-margin-small-right"></span>
+				<span class="retro-likes">{{sizeHlp likes}}</span> <span uk-icon="icon: heart" class="me-like"></span>
+			</div>
+			<p class="uk-margin-small-top">{{text}}</p>
 		</div>
 	</div>
 </div>

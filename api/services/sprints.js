@@ -1,23 +1,21 @@
 
 'use strict';
 
-let data = [
-	{
-		title: 'Sprint 6',
-		details: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit'
-	},
-	{
-		title: 'Sprint 5',
-		details: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit'
-	}
-];
+var Sprint = require('../models/Sprint');
+
 /**
  *  List of sprints
  */    
 function list() {
     
 	return new Promise(function(resolve, reject) {
-		setTimeout(() => resolve(data), 500);
+		Sprint.aggregate([{$match: {}}, {$sort: {created: 1}} ], function(err, sprints) {
+			if (err) {
+				return reject(err);
+			}
+			
+			return resolve(sprints);
+		});
 	});
 };
 
@@ -46,10 +44,37 @@ function save() {
  * Update sprint
  * @param id
  */    
-function update(id) {
+function updateLike(sprintId, cardId, email, group) {
     
 	return new Promise(function(resolve, reject) {
-		setTimeout(() => resolve("done!"), 1000);
+
+		Sprint.findOne({ _id: sprintId }, function(err, sprint) {
+			if (err) {
+				return reject(err);
+			}
+
+			let index = sprint[group].findIndex((item) => item.id == cardId);
+			
+			if (sprint[group][index].likes.includes(email)) {
+				let indexLike = sprint[group][index].likes.findIndex(item => item == email);
+				sprint[group][index].likes.splice(indexLike, 1);
+				
+			} else {
+				sprint[group][index].likes.push(email);
+			}
+
+			Sprint.updateOne({ _id: sprintId }, sprint, function(err, newSprint) {
+				if (err) {
+					return reject(err);
+				}
+				return resolve({
+					_id: newSprint._id,
+					msg: 'like_updated',
+					card: cardId,
+					likes: sprint[group][index].likes.length
+				});
+			});
+		});
 	});
 };
 
@@ -57,5 +82,5 @@ module.exports = {
 	list,
 	one,
 	save,
-	update
+	updateLike
 };
