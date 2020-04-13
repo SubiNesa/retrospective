@@ -16,9 +16,40 @@ router.get('/:id', async function(req, res) {
 	res.json(sprint);
 });
 
+router.get('/:id/card/:cardId', async function(req, res) {
+	try {
+		let card = await sprintsService.card(
+			req.params.id,
+			req.params.cardId
+		);
+		return res.json(card);
+	} catch (error) {
+		console.log(error);
+		return res.send(error);
+	}
+});
+
 router.post('/', async function(req, res) {
 	let sprint = await sprintsService.save();
 	res.json(sprint);
+});
+
+router.put('/:id/card/:cardId/comment', async function(req, res) {
+	try {
+		let response = await sprintsService.comment(
+			req.params.id,
+			req.params.cardId,
+			req.body.comment,
+			req.body.me
+		);
+
+		socketIo.emit('comment added', response);
+
+		return res.json(response);
+	} catch (error) {
+		console.log(error);
+		return res.send(error);
+	}
 });
 
 router.put('/:sprintId/group/:group', async function(req, res) {

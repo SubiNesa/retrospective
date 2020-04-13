@@ -1,0 +1,35 @@
+<div style="height: calc(100% - 125px); overflow: auto;">
+	<article class="uk-article">
+		<p class="uk-article-meta uk-margin-remove uk-text-bolder">{{card.creator}}</p>
+		<p class="uk-article-meta uk-margin-remove">{{dateHlp card.created}}</p>
+		<p>{{card.text}}</p>
+	</article>
+
+	{{#each card.comments}}
+	{{#if @first}}
+	<hr class="uk-divider-icon">
+	{{else}}
+	<hr>
+	{{/if}}
+	<article class="uk-comment">
+		<header class="uk-comment-header uk-grid-medium uk-flex-middle" uk-grid>
+			<div class="uk-width-expand">
+				<p class="uk-article-meta uk-margin-remove uk-text-lighter">{{creator}}</p>
+				<p class="uk-article-meta uk-margin-remove uk-text-lighter">{{dateHlp created}}</p>
+			</div>
+		</header>
+		<div class="uk-comment-body uk-text-light">
+			<p>{{comment}}</p>
+		</div>
+	</article>
+	{{/each}}
+</div>
+<div style="position: absolute; width: 75%;  height: 145px; bottom: 10px; z-index: 999;">
+	<hr class="uk-margin-remove">
+	<div class="uk-margin">
+		<form id="form-comment" class="toggle-class">
+		<textarea class="uk-textarea" rows="3" placeholder="Comment" required type="email" name="comment"></textarea>
+		<button type="submit" class="uk-button uk-button-default uk-button-small uk-margin-small-top uk-align-right">Save</button>
+		</form>
+	</div>
+</div>

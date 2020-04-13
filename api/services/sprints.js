@@ -21,6 +21,118 @@ function list() {
 };
 
 /**
+ *  Card of sprints
+ */    
+function card(sprintId, cardId) {
+    
+	return new Promise(function(resolve, reject) {
+		Sprint.findOne({_id: sprintId}, function(err, sprint) {
+			if (err) {
+				return reject(err);
+			}
+
+			let card;
+			let startIndex;
+			let stopIndex;
+			let continueIndex;
+
+			const getCard = (group, index) => {
+				return sprint[group][index];
+			}
+
+			if (sprint['start']) {
+				startIndex = sprint['start'].findIndex((item) => item.id == cardId);
+			}
+			if (sprint['stop']) {
+				stopIndex = sprint['stop'].findIndex((item) => item.id == cardId);
+			}
+			if (sprint['continue']) {
+				continueIndex = sprint['continue'].findIndex((item) => item.id == cardId);
+			}
+
+			if (startIndex >= 0) {
+				card = getCard('start', startIndex);
+			}
+			if (stopIndex >= 0) {
+				card = getCard('stop', stopIndex);
+			}
+			if (continueIndex >= 0) {
+				card = getCard('continue', continueIndex);
+			}
+			
+			return resolve({
+				_id: sprint._id,
+				card: card
+			});
+		});
+	});
+};
+
+/**
+ *  Comment of sprints
+ */    
+function comment(sprintId, cardId, comment, email) {
+    
+	return new Promise(function(resolve, reject) {
+		Sprint.findOne({_id: sprintId}, function(err, sprint) {
+			if (err) {
+				return reject(err);
+			}
+
+			let card;
+			let startIndex;
+			let stopIndex;
+			let continueIndex;
+
+			const getCard = (group, index) => {
+				return {group, index, data: sprint[group][index]};
+			}
+
+			if (sprint['start']) {
+				startIndex = sprint['start'].findIndex((item) => item.id == cardId);
+			}
+			if (sprint['stop']) {
+				stopIndex = sprint['stop'].findIndex((item) => item.id == cardId);
+			}
+			if (sprint['continue']) {
+				continueIndex = sprint['continue'].findIndex((item) => item.id == cardId);
+			}
+
+			if (startIndex >= 0) {
+				card = getCard('start', startIndex);
+			}
+			if (stopIndex >= 0) {
+				card = getCard('stop', stopIndex);
+			}
+			if (continueIndex >= 0) {
+				card = getCard('continue', continueIndex);
+			}
+
+			sprint[card.group][card.index].comments.push({
+				id: uuidv4(),
+				comment: comment,
+				creator: email,
+				created: new Date(),
+			});
+
+			Sprint.updateOne({ _id: sprintId }, sprint, function(err) {
+				if (err) {
+					return reject(err);
+				}
+
+				return resolve({
+					sprintId: sprint._id,
+					cardId: cardId,
+					group: card.group,
+					comments: sprint[card.group][card.index].comments.length,
+					card: sprint[card.group][card.index]
+				});
+			});
+		});
+	});
+};
+
+/**
  * One sprint
  * @param id
  */    
@@ -157,8 +269,10 @@ function updateLike(sprintId, cardId, group, email) {
 
 module.exports = {
 	list,
+	card,
 	one,
 	save,
+	comment,
 	updateColumn,
 	updateLike
 };

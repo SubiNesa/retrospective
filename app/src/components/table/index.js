@@ -1,6 +1,7 @@
 import './table.scss';
 
 let tableTpl = require('../../views/templates/table.hbs');
+let commentsTpl = require('../../views/templates/comments.hbs');
 let cardTpl = require('../../views/partials/card.hbs');
 
 // Services
@@ -47,6 +48,10 @@ const updateLikes = (ukCard, data) => {
 	setTimeout(function () {
 		ukCard.find('.me-like').removeClass('uk-animation-shake uk-text-danger');
 	}, 700);
+}
+
+const refresh = () => {
+	location.reload();
 }
 
 class TableComponents {
@@ -97,6 +102,7 @@ class TableComponents {
 		let that = this;
 
 		setTimeout(function() {
+
 			that.UIkit.util.on(document.body, 'stop', async function (e, sortable, el) {
 				
 				let uk_sortable_dom = $(el).closest('.uk-sortable');
@@ -154,6 +160,15 @@ class TableComponents {
 			}, 300);
 		});
 
+		this.socket.on('comment added', data => {
+			let uk_card_dom = $(`.uk-sortable[data-sprint='${data.sprintId}']`).find(`.uk-card[data-id='${data.cardId}']`);
+			uk_card_dom.find('.retro-comments').html(data.comments);
+			uk_card_dom.find('.me-comment').addClass('uk-animation-shake uk-text-danger');
+			setTimeout(function () {
+				uk_card_dom.find('.me-comment').removeClass('uk-animation-shake uk-text-danger');
+			}, 700);
+		});
+
 		this.socket.on('card liked', data => {
 			let uk_card_dom = $(`.uk-sortable[data-sprint='${data.sprintId}']`).find(`.uk-card[data-id='${data.cardId}']`);
 			updateLikes(uk_card_dom, data);
@@ -161,6 +176,8 @@ class TableComponents {
 	}
 
 	onClick() {
+		let that = this;
+
 		$('.me-like').on('click', async function (e) {
 			e.preventDefault();
 
@@ -185,8 +202,60 @@ class TableComponents {
 
 			} catch (error) {
 				console.error(error);
+				refresh();
 			}
-	  	});
+		});
+		  
+		$('.me-comment').on('click', async function(e) {
+			e.preventDefault();
+
+			try {
+				let sprint_id = $(this).closest('.uk-sortable').data('sprint');
+				let card_id = $(this).closest('.uk-card').data('id');
+
+				let response = await retroService.card(
+					sprint_id,
+					card_id
+				);
+
+				$('#comment-sidebar .content').html(commentsTpl(response));
+
+				that.UIkit.offcanvas('#comment-sidebar').show();
+
+				that.onCommentClick(sprint_id, card_id);
+
+			} catch (error) {
+				console.error(error);
+				refresh();
+			}
+			
+		});
+	}
+
+	onCommentClick(sprintId, cardId) {
+		let that = this;
+
+		$("#form-comment").on('submit', async function(e) {  
+			e.preventDefault();  
+
+			let user = JSON.parse(sessionStorage.getItem("user"));
+			let data = $("#form-comment").serializeArray();
+
+			$("#form-comment button").attr("disabled", "disabled");
+
+			let res = await retroService.addComment(
+				sprintId,
+				cardId,
+				data[0].value,
+				user.email
+			);
+
+			$("#form-comment button").removeAttr("disabled");
+			$('#comment-sidebar .content').html(commentsTpl(res));
+			setTimeout(function() {
+				that.onCommentClick(sprintId, cardId);
+			}, 1000);
+		}); 
 	}
 }
 

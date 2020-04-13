@@ -11,6 +11,30 @@ class RetroService {
         }
 	}
 
+	card(sprintId, cardId) {
+        try {
+            return $.ajax({
+                url: `http://localhost:3000/sprints/${sprintId}/card/${cardId}`,
+                type: "GET"
+            });
+
+        } catch (error) {
+            console.error(error);
+        }
+	}
+
+	addComment(sprintId, cardId, comment, me) {
+		try {
+            return $.ajax({
+                url: `http://localhost:3000/sprints/${sprintId}/card/${cardId}/comment`,
+				type: "PUT",
+				data: {comment, me}
+            });
+        } catch (error) {
+            console.error(error);
+        }
+	}
+
 	addCard(sprintId, group, type, text, me) {
 		try {
             return $.ajax({
