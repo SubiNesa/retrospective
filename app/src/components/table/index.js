@@ -32,7 +32,7 @@ const enterNewInput = async (e, that, group) => {
 
 const updateCard = (that, data) => {
 	$(`.column-${data.group} div[data-sprint='${data.srpintId}']`)
-	.append(cardTpl({text: data.text, id: data.cardId, last: true}));
+	.append(cardTpl({text: data.text, id: data.cardId, scaleup: true}));
 
 	that.UIkit.sticky('.sprint-title', {
 		offset: 0
@@ -67,6 +67,7 @@ class TableComponents {
 			});
 
             this.onLoad();
+			this.onMove();
             this.onSockets();
         } catch (error) {
             console.error(error);
@@ -89,7 +90,35 @@ class TableComponents {
 			enterNewInput(e, that, 'continue');
 		});
 
-		this.onClick()
+		this.onClick();
+	}
+	
+	onMove() {
+		let that = this;
+
+		setTimeout(function() {
+			that.UIkit.util.on(document.body, 'stop', async function (e, sortable, el) {
+				
+				let uk_sortable_dom = $(el).closest('.uk-sortable');
+				let sprint_id = $(el).closest('.uk-sortable').data('sprint');
+				let card_id = $(el).find('.uk-card').data('id');
+				let card_from_group = $(e.target).data('group');
+				let card_to_group = $(el).closest('.uk-sortable').data('group');
+				let moved_to_position = uk_sortable_dom.find('div.uk-margin').index($(el));
+
+				let user = JSON.parse(sessionStorage.getItem("user"));
+
+				await retroService.move(
+					sprint_id,
+					card_id,
+					card_from_group,
+					card_to_group,
+					moved_to_position,
+					user.email
+				);
+
+			});
+		}, 1000);
 	}
 	
 	onSockets() {
@@ -99,8 +128,34 @@ class TableComponents {
 			updateCard(that, data);
 		});
 
+		this.socket.on('card moved', data => {
+			const {sprintId, cardId, cardFromGroup, cardToGroup, movedToPosition} = data;
+
+			let card_dom = $(`.column-${cardFromGroup} .uk-sortable[data-sprint='${sprintId}']`)
+				.find(`.uk-card[data-id='${cardId}']`)
+				.closest('.uk-margin');
+			let new_card_dom = card_dom.clone();
+			
+			// remove from column card id
+			card_dom.addClass('uk-animation-scale-up uk-animation-reverse');
+			setTimeout(function() {
+				card_dom.remove();
+				// add to column card id
+				new_card_dom.addClass('uk-animation-scale-up');
+				if (movedToPosition == 0) {
+					$(`.column-${cardToGroup} .uk-sortable[data-sprint='${sprintId}']`).prepend(new_card_dom);
+				} else {
+					$(new_card_dom).insertAfter($(`.column-${cardToGroup} .uk-sortable[data-sprint='${sprintId}']`).find(`.uk-margin:nth-child(${movedToPosition})`));
+				}
+				setTimeout(function() {
+					new_card_dom.removeClass('uk-animation-scale-up');
+					that.onClick();
+				}, 300);
+			}, 300);
+		});
+
 		this.socket.on('card liked', data => {
-			let uk_card_dom = $(`.uk-sortable[data-sprint='${data.srpintId}']`).find(`.uk-card[data-id='${data.cardId}']`);
+			let uk_card_dom = $(`.uk-sortable[data-sprint='${data.sprintId}']`).find(`.uk-card[data-id='${data.cardId}']`);
 			updateLikes(uk_card_dom, data);
 		});
 	}

@@ -47,7 +47,7 @@ function save() {
  * @param type
  * @param text
  */    
-function updateColumn(sprintId, group, type, text) {
+function updateColumn(sprintId, cardId, group, type, ...data) {
 	return new Promise(function(resolve, reject) {
 
 		Sprint.findOne({ _id: sprintId }, function(err, sprint) {
@@ -55,17 +55,48 @@ function updateColumn(sprintId, group, type, text) {
 				return reject(err);
 			}
 
-			let card_id = uuidv4();
+			let res;
 
 			switch (type) {
 				case 'add': {
+					let card_id = uuidv4();
+					let [ text, email ] = data;
 					sprint[group].push({
 						id: card_id,
 						text: text,
 						likes: [],
 						comments: [],
-						states: [group]
+						states: [group],
+						creator: email,
+						created: new Date()
 					});
+
+					res = {
+						_id: sprintId,
+						msg: `${group}_${type}_added`,
+						cardId: card_id
+					};
+
+					break;
+				}
+
+				case 'move': {
+					let [cardFromGroup, cardToGroup, movedToPosition] = data;
+					let index = sprint[cardFromGroup].findIndex((item) => item.id == cardId);
+					let cards = sprint[cardFromGroup].splice(index, 1);
+
+					cards[0].states.push(cardToGroup);
+					sprint[cardToGroup].splice(movedToPosition, 0, cards[0]);
+
+					res = {
+						msg: `${group}_${type}_moved`,
+						sprintId,
+						cardId,
+						cardFromGroup, 
+						cardToGroup, 
+						movedToPosition
+					};
+
 					break;
 				}
 					
@@ -77,12 +108,7 @@ function updateColumn(sprintId, group, type, text) {
 				if (err) {
 					return reject(err);
 				}
-				return resolve({
-					_id: newSprint._id,
-					msg: `${group}_${type}_updated`,
-					text: text,
-					cardId: card_id
-				});
+				return resolve(res);
 			});
 		});
 	});

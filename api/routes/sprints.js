@@ -26,9 +26,11 @@ router.put('/:sprintId/group/:group', async function(req, res) {
 		let user = globalUsers.getOne('email', req.body.me);
 		let sprint = await sprintsService.updateColumn(
 			req.params.sprintId,
+			null,
 			req.params.group,
 			req.body.type,
 			req.body.text,
+			req.body.me
 		);
 		
 		// sending to all clients except sender
@@ -63,13 +65,37 @@ router.put('/:sprintId/group/:group/card/:cardId/like', async function(req, res)
 		
 		// sending to all clients except sender
 		user.socket.broadcast.emit('card liked', {
-			srpintId: req.params.sprintId,
+			sprintId: req.params.sprintId,
 			cardId: req.params.cardId,
 			emailId: req.body.email,
 			likes: sprint.likes
 		});
 
 		return res.json(sprint);
+	} catch (error) {
+		console.log(error);
+		return res.send(error);
+	}
+});
+
+router.put('/:sprintId/group/:group/card/:cardId/move', async function(req, res) {
+	try {
+
+		let user = globalUsers.getOne('email', req.body.me);
+		let response = await sprintsService.updateColumn(
+			req.params.sprintId,
+			req.params.cardId,
+			req.params.group,
+			'move',
+			req.body.cardFromGroup, 
+			req.body.cardToGroup,
+			req.body.movedToPosition
+		);
+		
+		// sending to all clients except sender
+		user.socket.broadcast.emit('card moved', response);
+		
+		return res.json(response);
 	} catch (error) {
 		console.log(error);
 		return res.send(error);

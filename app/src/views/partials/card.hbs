@@ -1,11 +1,14 @@
 <div class="uk-margin">
 	<div>
-		<div class="uk-card uk-card-default uk-card-body {{#if last}}uk-animation-scale-up{{/if}}" style="padding: 30px 20px;" data-id="{{id}}">
-			<div style="position: absolute; right: 10px; top: 10px;">
-				<span class="retro-comments">{{sizeHlp comments}}</span> <span uk-icon="icon: comment" class="uk-margin-small-right"></span>
-				<span class="retro-likes">{{sizeHlp likes}}</span> <span uk-icon="icon: heart" class="me-like"></span>
+		<div class="uk-card uk-card-default uk-card-body {{#if scaleup}}uk-animation-scale-up{{/if}}" style="padding: 30px 20px;" data-id="{{id}}">
+			<div style="position: absolute; left: 20px; top: 10px;" class="uk-text-light uk-text-muted">
+				<span data-uk-icon="icon:user" title="{{creator}}" data-uk-tooltip class="uk-margin-small-right"></span>
 			</div>
-			<p class="uk-margin-small-top">{{text}}</p>
+			<div style="position: absolute; right: 20px; top: 10px;" class="uk-text-light uk-text-muted">
+				<span class="retro-comments">{{sizeHlp comments}}</span> <span><a href="#" uk-icon="icon: comment" class="uk-margin-small-right"></a></span>
+				<span class="retro-likes">{{sizeHlp likes}}</span> <span><a href="#" uk-icon="icon: heart" class="me-like"></a></span>
+			</div>
+			<p class="uk-text-truncate" {{#biggerThenHlp text 26}}title="{{text}}" data-uk-tooltip{{/biggerThenHlp}}>{{text}}</p>
 		</div>
 	</div>
 </div>

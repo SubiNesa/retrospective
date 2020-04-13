@@ -1,5 +1,5 @@
-<div uk-sortable="group: sortable-group" data-sprint={{_id}} data-group="continue">
+<div uk-sortable="group: sortable-group{{#unless @first}}-previous{{/unless}}" data-sprint={{_id}} data-group="continue">
 	{{#each continue}}
-		{{> ../card this last=@last}}
+		{{> ../card this}}
 	{{/each}}
 </div>

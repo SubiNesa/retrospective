@@ -33,6 +33,20 @@ class RetroService {
         } catch (error) {
             console.error(error);
         }
+	}
+
+	
+	
+    move(sprintId, cardId, cardFromGroup, cardToGroup, movedToPosition, me) {
+        try {
+            return $.ajax({
+                url: `http://localhost:3000/sprints/${sprintId}/group/${cardFromGroup}/card/${cardId}/move`,
+				type: "PUT",
+				data: {cardFromGroup, cardToGroup, movedToPosition, me}
+            });
+        } catch (error) {
+            console.error(error);
+        }
     }
 }
 
