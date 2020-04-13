@@ -6,7 +6,7 @@
 	<div class="uk-navbar-right">
 		{{#each users}}
 		<ul class="uk-navbar-nav">
-			<li><a href="#" data-uk-icon="icon:user" title="{{email}}" data-uk-tooltip style="color: {{color}};"></a></li>
+			<li data-user="{{email}}"><a href="#" class="shake-user" data-uk-icon="icon:user" title="{{email}}" data-uk-tooltip style="color: {{color}};"></a></li>
 		</ul>
 		{{/each}}
 	</div>

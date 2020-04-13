@@ -70,6 +70,13 @@ io.on('connection', socket => {
 		}
 	});
 
+	socket.on('shake user', (email) => {
+		let user = globalUsers.getOne('email', email);
+		if (user) {
+			io.to(`${user.socket.id}`).emit('user shaked');
+		}
+	});
+
 	socket.on('disconnect', () => {
 		console.log('disconnect', socket.id);
 		let index = users.findIndex((user) => user.id == socket.id);

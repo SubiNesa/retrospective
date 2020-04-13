@@ -29,6 +29,13 @@ import TableComponents from './components/table/index.js';
 const loginComponents = new LoginComponents(socket);
 const tableComponents = new TableComponents(socket, UIkit);
 
+const shackUser = () => {
+	$('.shake-user').on('click', function(e) {
+		e.preventDefault();
+		socket.emit('shake user', $(e.target).closest('li').data('user'));
+	});
+}
+
 const load = (users = []) => {
 	document.title = 'Retrospective';
 	
@@ -48,6 +55,8 @@ const load = (users = []) => {
 			$('#retro').html(spinnerTpl());
 			tableComponents.render();
 		}
+
+		shackUser();
 	}
 };
 
@@ -67,9 +76,18 @@ $(document).ready(() => {
 	socket.on('new user connected', (users) => {
 		console.log('new user connected', users);
 		$('.navbar').html(navTpl({users}));
+		shackUser();
+	});
+
+	socket.on('user shaked', () => {
+		$('body').addClass('uk-animation-shake');
+		setTimeout(function() {
+			$('body').removeClass('uk-animation-shake');
+		}, 800);
 	});
 
 	socket.on('user disconnect', (users) => {
 		$('.navbar').html(navTpl({users}));
+		shackUser();
 	});
 });
