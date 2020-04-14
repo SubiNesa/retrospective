@@ -77,6 +77,13 @@ io.on('connection', socket => {
 		}
 	});
 
+	socket.on('start counter', (minutes) => {
+		let milliseconds = Number(minutes) * 60000;
+		let d = new Date();
+		d.setMinutes( d.getMinutes() + Number(minutes) );
+		io.emit('counter started', {date: d, milliseconds: milliseconds});
+	});
+
 	socket.on('disconnect', () => {
 		console.log('disconnect', socket.id);
 		let index = users.findIndex((user) => user.id == socket.id);

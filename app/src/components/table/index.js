@@ -2,6 +2,7 @@ import './table.scss';
 
 let tableTpl = require('../../views/templates/table.hbs');
 let commentsTpl = require('../../views/templates/comments.hbs');
+let countdownTpl = require('../../views/templates/countdown.hbs');
 let cardTpl = require('../../views/partials/card.hbs');
 
 // Services
@@ -173,6 +174,14 @@ class TableComponents {
 			let uk_card_dom = $(`.uk-sortable[data-sprint='${data.sprintId}']`).find(`.uk-card[data-id='${data.cardId}']`);
 			updateLikes(uk_card_dom, data);
 		});
+
+		this.socket.on('counter started', data => {
+			$('.countdown').html(countdownTpl({date: data.date}));
+			let x = setInterval(function() {
+				$('.countdown').html('');
+				clearInterval(x);
+			}, data.milliseconds);
+		});
 	}
 
 	onClick() {
@@ -228,7 +237,18 @@ class TableComponents {
 				console.error(error);
 				refresh();
 			}
-			
+		});
+
+		$('.start-counter').on('click', function(e) {
+			e.preventDefault();
+
+			try {
+				let minutes = $(this).data('minutes');
+				that.socket.emit('start counter', minutes);
+			} catch (error) {
+				console.error(error);
+				refresh();
+			}
 		});
 	}
 
