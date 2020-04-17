@@ -36,7 +36,7 @@ const shackUser = () => {
 	});
 }
 
-const load = (users = []) => {
+const load = (users = [], finished) => {
 	document.title = 'Retrospective';
 	
 	let data = sessionStorage.getItem("user");
@@ -51,7 +51,7 @@ const load = (users = []) => {
 			socket.emit('user reconnect', user);
 
 		} else {
-			$('.navbar').html(navTpl({users}));
+			$('.navbar').html(navTpl({users, counter: finished}));
 			$('#retro').html(spinnerTpl());
 			tableComponents.render();
 		}
@@ -63,9 +63,10 @@ const load = (users = []) => {
 $(document).ready(() => {
 	load();
 	
-	socket.on('connected', (user, users) => {
+	socket.on('connected', (user, users, finished) => {
+		console.log('finished', finished);
 		sessionStorage.setItem("user", JSON.stringify(user));
-		load(users);
+		load(users, finished);
 	});
 
 	socket.on('user already connected', () => {
@@ -73,9 +74,10 @@ $(document).ready(() => {
 		loginComponents.render();
 	});
 
-	socket.on('new user connected', (users) => {
+	socket.on('new user connected', (users, finished) => {
+		console.log('finished', finished);
 		console.log('new user connected', users);
-		$('.navbar').html(navTpl({users}));
+		$('.navbar').html(navTpl({users, counter: finished}));
 		shackUser();
 	});
 
@@ -84,6 +86,10 @@ $(document).ready(() => {
 		setTimeout(function() {
 			$('body').removeClass('uk-animation-shake');
 		}, 800);
+	});
+
+	socket.on('user finished sprint', (users, counter) => {
+		$('.navbar').html(navTpl({users, counter}));
 	});
 
 	socket.on('user disconnect', (users) => {

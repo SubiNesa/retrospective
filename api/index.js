@@ -7,8 +7,10 @@ const io = require('socket.io')(server);
 const mongoose = require('mongoose');
 const port = 3000;
 const colors = ['#E53935', '#D81B60', '#8E24AA', '#B388FF', '#3949AB', '#1E88E5', '#81D4FA', '#00ACC1', '#00897B', '#00BFA5', '#A5D6A7', '#43A047', '#7CB342', '#F57F17', '#FBC02D'];
-let users = [];
 const globalUsers = require('./Users');
+let users = [];
+let finished = [];
+let counter;
 
 app.use(cors());
 app.use(bodyParser.json({limit: '50mb'})); // get information from html forms
@@ -20,7 +22,7 @@ io.on('connection', socket => {
 	
 	console.log('connection', socket.id);
 
-	const connectUser = (email) => {
+	const connectUser = (email, finished) => {
 		let user = {
 			id: socket.id,
 			email: email,
@@ -28,20 +30,34 @@ io.on('connection', socket => {
 		};
 
 		globalUsers.setUser(email, socket);
-		
+
 		users.push(user);
-		io.to(`${socket.id}`).emit('connected', user, users);
-		socket.broadcast.emit('new user connected', users);
+		io.to(`${socket.id}`).emit('connected', user, users, finished.length);
+		socket.broadcast.emit('new user connected', users, finished.length);
+
+		setTimeout(function () {
+			let now = new Date();
+			if ((counter - now) > 0) {
+				io.to(`${socket.id}`).emit('counter started', {date: counter, milliseconds: counter.getTime() - now.getTime()});
+			}
+		}, 700);
 	}
 
-	const reconnectUser = (user) => {
+	const reconnectUser = (user, finished) => {
 		user.id = socket.id;
 		users.push(user);
 
 		globalUsers.setUser(user.email, socket);
 
-		io.to(`${socket.id}`).emit('connected', user, users);
-		socket.broadcast.emit('new user connected', users);
+		io.to(`${socket.id}`).emit('connected', user, users, finished.length);
+		socket.broadcast.emit('new user connected', users, finished.length);
+
+		setTimeout(function () {
+			let now = new Date();
+			if ((counter - now) > 0) {
+				io.to(`${socket.id}`).emit('counter started', {date: counter, milliseconds: counter.getTime() - now.getTime()});
+			}
+		}, 700);
 	}	
 
 	socket.on('login', (email) => {
@@ -50,10 +66,10 @@ io.on('connection', socket => {
 			if (index >= 0) {
 				io.to(`${socket.id}`).emit('user already connected');
 			} else {
-				connectUser(email);
+				connectUser(email, finished);
 			}
 		} else {
-			connectUser(email);
+			connectUser(email, finished);
 		}
 	});
 
@@ -63,10 +79,10 @@ io.on('connection', socket => {
 			if (index >= 0) {
 				io.to(`${socket.id}`).emit('user already connected');
 			} else {
-				reconnectUser(user);
+				reconnectUser(user, finished);
 			}
 		} else {
-			reconnectUser(user);
+			reconnectUser(user, finished);
 		}
 	});
 
@@ -79,18 +95,30 @@ io.on('connection', socket => {
 
 	socket.on('start counter', (minutes) => {
 		let milliseconds = Number(minutes) * 60000;
-		let d = new Date();
-		d.setMinutes( d.getMinutes() + Number(minutes) );
-		io.emit('counter started', {date: d, milliseconds: milliseconds});
+		counter = new Date();
+		counter.setMinutes( counter.getMinutes() + Number(minutes) );
+		io.emit('counter started', {date: counter, milliseconds: milliseconds});
+	});
+
+	socket.on('user sprint finish', (email) => {
+		if (!finished.includes(email)) {
+			finished.push(email);	
+			io.emit('user finished sprint', users, finished.length);
+		}
 	});
 
 	socket.on('disconnect', () => {
 		console.log('disconnect', socket.id);
 		let index = users.findIndex((user) => user.id == socket.id);
+		let user = users[index];
 		globalUsers.delUser('id', socket.id);
 		if (index >= 0) {
 			users.splice(index, 1);
 			socket.broadcast.emit('user disconnect', users);
+		} 
+		let indexF = finished.findIndex((finish) => user.email == finish);
+		if (indexF >= 0) {
+			finished.splice(indexF, 1);
 		} 
 	});
 });

@@ -177,6 +177,7 @@ class TableComponents {
 
 		this.socket.on('counter started', data => {
 			$('.countdown').html(countdownTpl({date: data.date}));
+			$('.me-finished').removeClass('uk-invisible').addClass('uk-animation-slide-top');
 			let x = setInterval(function() {
 				$('.countdown').html('');
 				clearInterval(x);
@@ -214,7 +215,6 @@ class TableComponents {
 				updateLikes(uk_card_dom, response);
 
 			} catch (error) {
-				console.log('error');
 				console.error(error);
 				refresh();
 			}
@@ -296,6 +296,12 @@ class TableComponents {
 			that.UIkit.modal('#modal-create-sprint').hide();
 			that.render();
 		}); 
+
+		$('.me-finished').on('click', function() {
+			let user = JSON.parse(sessionStorage.getItem("user"));
+			that.socket.emit('user sprint finish', user.email);
+		});
+
 	}
 
 	onCommentClick(sprintId, cardId) {

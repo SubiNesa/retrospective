@@ -16,8 +16,9 @@
 		{{#if ended}}
 			<li><a href="#modal-create-sprint" uk-toggle uk-icon="icon: plus-circle"></a></li>
 		{{else}}
+			<li><a href="#" class="me-finished uk-invisible" uk-toggle uk-icon="icon: check; ratio: 1.5" title="I have finished" data-uk-tooltip style="margin-top:-5px"></a></li>
 			<li>
-				<a class="uk-link-muted" uk-icon="icon: bell"></a>
+				<a class="uk-link-muted" uk-icon="icon: bell" title="Start counter" data-uk-tooltip></a>
 				<div uk-dropdown="animation: uk-animation-slide-top-small; duration: 500;" style="min-width: 130px;">
 					<ul class="uk-nav uk-dropdown-nav">
 						<li><a href="#" class="start-counter" data-minutes="1">1 minute</a></li>
@@ -28,7 +29,7 @@
 				</div>
 			</li>
 			<!--<li><a href="#" uk-icon="icon: file-edit"></a></li>-->
-			<li><a href="#modal-end-sprint" uk-toggle uk-icon="icon: unlock"></a></li>
+			<li><a href="#modal-end-sprint" uk-toggle uk-icon="icon: unlock" title="Close sprint" data-uk-tooltip></a></li>
 		{{/if}}
 		</ul>
 		{{/if}}
