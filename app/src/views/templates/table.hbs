@@ -1,5 +1,5 @@
 {{#each sprints}}
-	<div class="sprint-title uk-card uk-card-default uk-card-body" style="z-index: 980; box-shadow:none; margin-top: 15px;">
+	<div class="sprint-title uk-card uk-card-default uk-card-body" style="z-index: 980; box-shadow:none; margin-top: 15px;" {{#if @first}}data-id="{{_id}}"{{/if}}>
 		<div class="uk-grid-collapse uk-child-width-expand@s uk-text-left uk-margin-small-top" uk-grid>
 			<div>
 				<h3 class="uk-card-title">{{title}}</h3>
@@ -13,6 +13,9 @@
 		<p>{{details}}</p>
 		{{#if @first}}
 		<ul class="uk-iconnav" style="position: absolute; right: 10px; top: 10px;">
+		{{#if ended}}
+			<li><a href="#modal-create-sprint" uk-toggle uk-icon="icon: plus-circle"></a></li>
+		{{else}}
 			<li>
 				<a class="uk-link-muted" uk-icon="icon: bell"></a>
 				<div uk-dropdown="animation: uk-animation-slide-top-small; duration: 500;" style="min-width: 130px;">
@@ -24,8 +27,9 @@
 					</ul>
 				</div>
 			</li>
-			<li><a href="#" uk-icon="icon: file-edit"></a></li>
-			<li><a href="#" uk-icon="icon: unlock"></a></li>
+			<!--<li><a href="#" uk-icon="icon: file-edit"></a></li>-->
+			<li><a href="#modal-end-sprint" uk-toggle uk-icon="icon: unlock"></a></li>
+		{{/if}}
 		</ul>
 		{{/if}}
 	</div>
@@ -34,10 +38,12 @@
 			<div>
 				<h4>Start</h4>
 				{{#if @first}}
+				{{#unless ended}}
 				<div class="uk-margin uk-inline" style="display: block;">
 					<a class="uk-form-icon" href="#" uk-icon="icon: pencil"></a>
 					<input class="uk-input new-start-input" type="text" placeholder="add start" data-sprint={{_id}}>
 				</div>
+				{{/unless}}
 				{{/if}}
 				<div class="column-start{{#unless @first}}-previous{{/unless}}">
 					{{> ../partials/columns/start this}}
@@ -46,10 +52,12 @@
 			<div>
 				<h4>Stop</h4>
 				{{#if @first}}
+				{{#unless ended}}
 				<div class="uk-margin uk-inline" style="display: block;">
 					<a class="uk-form-icon" href="#" uk-icon="icon: pencil"></a>
 					<input class="uk-input new-stop-input" type="text" placeholder="add stop" data-sprint={{_id}}>
 				</div>
+				{{/unless}}
 				{{/if}}
 				<div class="column-stop{{#unless @first}}-previous{{/unless}}">
 					{{> ../partials/columns/stop this}}
@@ -58,10 +66,12 @@
 			<div>
 				<h4>Continue</h4>
 				{{#if @first}}
+				{{#unless ended}}
 				<div class="uk-margin uk-inline" style="display: block;">
 					<a class="uk-form-icon" href="#" uk-icon="icon: pencil"></a>
 					<input class="uk-input new-continue-input" type="text" placeholder="add continue" data-sprint={{_id}}>
 				</div>
+				{{/unless}}
 				{{/if}}
 				<div class="column-continue{{#unless @first}}-previous{{/unless}}">
 					{{> ../partials/columns/continue this}}
@@ -76,4 +86,37 @@
 		<button class="uk-offcanvas-close" type="button" uk-close></button>
 		<div class="content" style="display: contents;"></div>
 	</div>
+</div>
+
+<div id="modal-end-sprint" class="uk-flex-top" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+        <h2 class="uk-modal-title">
+			<span class="uk-text-light uk-text-muted">Close sprint ?</span>
+		</h2>
+        <p>Would you like to close the current sprint?</p>
+        <p class="uk-text-right uk-margin-remove-bottom">
+            <button id="end-sprint" class="uk-button uk-button-primary" type="button">Yes</button>
+            <button class="uk-button uk-button-default uk-modal-close" type="button">No</button>
+        </p>
+    </div>
+</div>
+
+<div id="modal-create-sprint" class="uk-flex-top" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+        <h2 class="uk-modal-title">
+			<span class="uk-text-light uk-text-muted">Create new sprint!</span>
+		</h2>
+		<form id="form-create-sprint">
+			<div class="uk-margin">
+				<input class="uk-input" type="text" placeholder="Sprint" name="title" required>
+			</div>
+			<div class="uk-margin">
+				<input class="uk-input" type="text" placeholder="Details" name="details">
+			</div>
+
+			<p class="uk-text-right uk-margin-remove-bottom">
+				<button class="uk-button uk-button-primary" type="submit">Create</button>
+			</p>
+		</form>
+    </div>
 </div>

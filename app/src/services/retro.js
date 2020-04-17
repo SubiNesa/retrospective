@@ -23,6 +23,32 @@ class RetroService {
         }
 	}
 
+	createSprint(title, details, me) {
+        try {
+            return $.ajax({
+                url: `http://localhost:3000/sprints`,
+				type: "POST",
+				data: {title, details, me}
+            });
+
+        } catch (error) {
+            console.error(error);
+        }
+	}
+
+	closeSprint(sprintId, me) {
+        try {
+            return $.ajax({
+                url: `http://localhost:3000/sprints/${sprintId}/close`,
+				type: "PUT",
+				data: {me}
+            });
+
+        } catch (error) {
+            console.error(error);
+        }
+	}
+
 	addComment(sprintId, cardId, comment, me) {
 		try {
             return $.ajax({
@@ -55,6 +81,7 @@ class RetroService {
 				data: {email: email, group: cardGroup, me: me}
             });
         } catch (error) {
+            console.log('hello');
             console.error(error);
         }
 	}

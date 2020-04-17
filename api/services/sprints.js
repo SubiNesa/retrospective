@@ -10,7 +10,7 @@ const { v4: uuidv4 } = require('uuid');
 function list() {
     
 	return new Promise(function(resolve, reject) {
-		Sprint.aggregate([{$match: {}}, {$sort: {created: 1}} ], function(err, sprints) {
+		Sprint.aggregate([{$match: {}}, {$sort: {created: -1}} ], function(err, sprints) {
 			if (err) {
 				return reject(err);
 			}
@@ -29,6 +29,10 @@ function card(sprintId, cardId) {
 		Sprint.findOne({_id: sprintId}, function(err, sprint) {
 			if (err) {
 				return reject(err);
+			}
+
+			if (sprint.ended) {
+				return reject({msg: 'sprint_ended'});
 			}
 
 			let card;
@@ -133,23 +137,61 @@ function comment(sprintId, cardId, comment, email) {
 };
 
 /**
- * One sprint
- * @param id
+ * Save new sprint
+ *
+ * @param title
+ * @param details
+ * @param email
  */    
-function one(id) {
+function save(title, details, email) {
     
 	return new Promise(function(resolve, reject) {
-		setTimeout(() => resolve("done!"), 1000);
+		var sprint = new Sprint({
+			title: title,
+			details: details,
+			creator: email,
+			start: [],
+			continue: [],
+			stop: []
+		});
+		
+		sprint.save(function(err) {
+			if (err) {
+				return reject(err);	
+			}
+
+			return resolve({
+				message: "sprint_created"
+			});
+		});
 	});
 };
 
-/**
- * Save new sprint
- */    
-function save() {
+function close(sprintId) {
     
 	return new Promise(function(resolve, reject) {
-		setTimeout(() => resolve("done!"), 1000);
+
+		Sprint.findOne({ _id: sprintId }, function(err, sprint) {
+			if (err) {
+				return reject(err);
+			}
+
+			if (sprint.ended) {
+				return reject({msg: 'sprint_ended'});
+			}
+
+			sprint.ended = new Date();
+			
+			Sprint.updateOne({ _id: sprintId }, sprint, function(err) {
+				if (err) {
+					return reject(err);
+				}
+				
+				return resolve({
+					message: "sprint_ended"
+				});
+			});
+		});
 	});
 };
 
@@ -165,6 +207,10 @@ function updateColumn(sprintId, cardId, group, type, ...data) {
 		Sprint.findOne({ _id: sprintId }, function(err, sprint) {
 			if (err) {
 				return reject(err);
+			}
+
+			if (sprint.ended) {
+				return reject({msg: 'sprint_ended'});
 			}
 
 			let res;
@@ -242,6 +288,10 @@ function updateLike(sprintId, cardId, group, email) {
 				return reject(err);
 			}
 
+			if (sprint.ended) {
+				return reject({msg: 'sprint_ended'});
+			}
+
 			let index = sprint[group].findIndex((item) => item.id == cardId);
 			
 			if (sprint[group][index].likes.includes(email)) {
@@ -270,8 +320,8 @@ function updateLike(sprintId, cardId, group, email) {
 module.exports = {
 	list,
 	card,
-	one,
 	save,
+	close,
 	comment,
 	updateColumn,
 	updateLike

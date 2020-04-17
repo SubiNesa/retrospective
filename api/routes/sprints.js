@@ -11,11 +11,6 @@ router.get('/', async function(req, res) {
 	res.json(sprints);
 });
 
-router.get('/:id', async function(req, res) {
-	let sprint = await sprintsService.one();
-	res.json(sprint);
-});
-
 router.get('/:id/card/:cardId', async function(req, res) {
 	try {
 		let card = await sprintsService.card(
@@ -25,13 +20,41 @@ router.get('/:id/card/:cardId', async function(req, res) {
 		return res.json(card);
 	} catch (error) {
 		console.log(error);
-		return res.send(error);
+		return res.status(403).send(error);
 	}
 });
 
 router.post('/', async function(req, res) {
-	let sprint = await sprintsService.save();
-	res.json(sprint);
+	try {
+		let user = globalUsers.getOne('email', req.body.me);
+		let sprint = await sprintsService.save(
+			req.body.title,
+			req.body.details,
+			req.body.me
+		);
+
+		user.socket.broadcast.emit('sprint updated');
+		return res.json(sprint);
+	} catch (error) {
+		console.log(error);
+		return res.status(403).send(error);
+	}
+});
+
+router.put('/:id/close', async function(req, res) {
+	try {
+		let user = globalUsers.getOne('email', req.body.me);
+		let response = await sprintsService.close(
+			req.params.id,
+			req.body.me
+		);
+
+		user.socket.broadcast.emit('sprint updated');
+		return res.json(response);
+	} catch (error) {
+		console.log(error);
+		return res.status(403).send(error);
+	}
 });
 
 router.put('/:id/card/:cardId/comment', async function(req, res) {
@@ -80,7 +103,7 @@ router.put('/:sprintId/group/:group', async function(req, res) {
 		});
 	} catch (error) {
 		console.log(error);
-		return res.send(error);
+		return res.status(403).send(error);
 	}
 });
 
@@ -93,6 +116,8 @@ router.put('/:sprintId/group/:group/card/:cardId/like', async function(req, res)
 			req.params.group,
 			req.body.email
 		);
+
+		console.log(sprint);
 		
 		// sending to all clients except sender
 		user.socket.broadcast.emit('card liked', {
@@ -105,7 +130,7 @@ router.put('/:sprintId/group/:group/card/:cardId/like', async function(req, res)
 		return res.json(sprint);
 	} catch (error) {
 		console.log(error);
-		return res.send(error);
+		return res.status(403).send(error);
 	}
 });
 
@@ -129,7 +154,7 @@ router.put('/:sprintId/group/:group/card/:cardId/move', async function(req, res)
 		return res.json(response);
 	} catch (error) {
 		console.log(error);
-		return res.send(error);
+		return res.status(403).send(error);
 	}
 });
 

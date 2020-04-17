@@ -182,6 +182,10 @@ class TableComponents {
 				clearInterval(x);
 			}, data.milliseconds);
 		});
+
+		this.socket.on('sprint updated', () => {
+			that.render();
+		});
 	}
 
 	onClick() {
@@ -210,6 +214,7 @@ class TableComponents {
 				updateLikes(uk_card_dom, response);
 
 			} catch (error) {
+				console.log('error');
 				console.error(error);
 				refresh();
 			}
@@ -250,6 +255,47 @@ class TableComponents {
 				refresh();
 			}
 		});
+
+		$('#end-sprint').on('click', async function(e) {
+			e.preventDefault();
+
+			try {
+				let sprintId = $('.sprint-title[data-id]').data('id');
+				$('#modal-end-sprint .uk-modal-dialog').children().addClass('uk-animation-fade uk-animation-reverse');
+				setTimeout(function () {
+					$('#modal-end-sprint .uk-modal-dialog').html('<div class="uk-text-center uk-text-muted"><div uk-spinner="ratio: 3"></div><p class="uk-margin-small-bottom">Saving ...</p></div>');
+				}, 1000);
+				let user = JSON.parse(sessionStorage.getItem("user"));
+				await retroService.closeSprint(sprintId, user.email);
+				that.UIkit.modal('#modal-end-sprint').hide();
+				that.render();
+				setTimeout(function () {
+					that.UIkit.modal('#modal-create-sprint').show();
+				}, 1000);
+			} catch (error) {
+				console.error(error);
+				refresh();
+			}
+		});
+
+		$("#form-create-sprint").on('submit', async function(e) {  
+			e.preventDefault();  
+
+			let user = JSON.parse(sessionStorage.getItem("user"));
+			let data = $("#form-create-sprint").serializeArray();
+
+			$("#form-create-sprint button").attr("disabled", "disabled");
+
+			await retroService.createSprint(
+				data[0].value,
+				data[1].value,
+				user.email
+			);
+
+			$("#form-create-sprint button").removeAttr("disabled");
+			that.UIkit.modal('#modal-create-sprint').hide();
+			that.render();
+		}); 
 	}
 
 	onCommentClick(sprintId, cardId) {
