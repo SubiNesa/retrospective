@@ -22,11 +22,12 @@ io.on('connection', socket => {
 	
 	console.log('connection', socket.id);
 
-	const connectUser = (email, finished) => {
+	const connectUser = (email, admin, finished) => {
 		let user = {
 			id: socket.id,
 			email: email,
-			color: colors[Math.floor((Math.random() * colors.length) + 1)]
+			color: colors[Math.floor((Math.random() * colors.length) + 1)],
+			admin: admin
 		};
 
 		globalUsers.setUser(email, socket);
@@ -60,16 +61,16 @@ io.on('connection', socket => {
 		}, 700);
 	}	
 
-	socket.on('login', (email) => {
+	socket.on('login', (email, admin) => {
 		if (users.length > 0) {
 			let index = users.findIndex((user) => user.email == email);
 			if (index >= 0) {
 				io.to(`${socket.id}`).emit('user already connected');
 			} else {
-				connectUser(email, finished);
+				connectUser(email, admin, finished);
 			}
 		} else {
-			connectUser(email, finished);
+			connectUser(email, admin, finished);
 		}
 	});
 

@@ -65,8 +65,9 @@ class TableComponents {
     async render() {
         try {
 			let sprints = await retroService.list();
+			let user = JSON.parse(sessionStorage.getItem("user"));
 			
-            $('#retro').html(tableTpl({ sprints: sprints }));
+            $('#retro').html(tableTpl({ sprints, user }));
 
 			this.UIkit.sticky('.sprint-title', {
 				offset: 0
@@ -130,6 +131,7 @@ class TableComponents {
 	
 	onSockets() {
 		let that = this;
+		let counter_started;
 
 		this.socket.on('card added', data => {
 			updateCard(that, data);
@@ -178,9 +180,12 @@ class TableComponents {
 		this.socket.on('counter started', data => {
 			$('.countdown').html(countdownTpl({date: data.date}));
 			$('.me-finished').removeClass('uk-invisible').addClass('uk-animation-slide-top');
-			let x = setInterval(function() {
+			if (counter_started) {
+				clearInterval(counter_started);
+			}
+			counter_started = setInterval(function() {
 				$('.countdown').html('');
-				clearInterval(x);
+				clearInterval(counter_started);
 			}, data.milliseconds);
 		});
 

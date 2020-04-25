@@ -31,10 +31,6 @@ function card(sprintId, cardId) {
 				return reject(err);
 			}
 
-			if (sprint.ended) {
-				return reject({msg: 'sprint_ended'});
-			}
-
 			let card;
 			let startIndex;
 			let stopIndex;

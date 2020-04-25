@@ -38,7 +38,7 @@ const shackUser = () => {
 
 const load = (users = [], finished) => {
 	document.title = 'Retrospective';
-	
+
 	let data = sessionStorage.getItem("user");
 
 	if (!data) {
@@ -64,7 +64,6 @@ $(document).ready(() => {
 	load();
 	
 	socket.on('connected', (user, users, finished) => {
-		console.log('finished', finished);
 		sessionStorage.setItem("user", JSON.stringify(user));
 		load(users, finished);
 	});
@@ -75,8 +74,6 @@ $(document).ready(() => {
 	});
 
 	socket.on('new user connected', (users, finished) => {
-		console.log('finished', finished);
-		console.log('new user connected', users);
 		$('.navbar').html(navTpl({users, counter: finished}));
 		shackUser();
 	});

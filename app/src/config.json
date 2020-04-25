@@ -1,0 +1,9 @@
+{
+	"users": [
+		"me@me.com",
+		"you@you.com"
+	],
+	"admins":[
+		"me@me.com"
+	]
+}

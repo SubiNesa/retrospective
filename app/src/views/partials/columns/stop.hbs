@@ -1,4 +1,4 @@
-<div uk-sortable="group: sortable-group{{#unless @first}}-previous{{/unless}}" data-sprint={{_id}} data-group="stop" {{#orIfHlp @first ended}}class="uk-sortable-nodrag"{{/orIfHlp}}>
+<div uk-sortable="group: sortable-group{{#unless @first}}-previous{{/unless}}" data-sprint={{_id}} data-group="stop" {{#noSortableHlp @first ended user.admin}}class="uk-sortable-nodrag"{{/noSortableHlp}}>
 	{{#each stop}}
 		{{> ../card}}
 	{{/each}}

@@ -1,4 +1,5 @@
 let loginTpl = require('../../views/templates/login.hbs');
+let config = require('../../config.json');
 
 class LoginComponents {
 
@@ -16,8 +17,22 @@ class LoginComponents {
 				let data = $("#form-user").serializeArray();
 				console.log(data);
 
-				that.socket.open();
-				that.socket.emit('login', data[0].value);
+				let email = data[0].value.toLowerCase();
+
+				if (config.users.includes(email)) {
+					that.socket.open();
+					that.socket.emit('login', email, config.admins.includes(email));
+				} else {
+					$("#form-user").prepend($(`<div class="uk-alert-danger uk-text-center" uk-alert>
+						<p>E-mail is not valide.<br/>Please try again!</p>
+						</div>`));
+
+					setTimeout(function () {
+						$('.uk-alert-danger').remove();
+					}, 5000);	
+				}
+
+
 			}); 
 
         } catch (error) {
